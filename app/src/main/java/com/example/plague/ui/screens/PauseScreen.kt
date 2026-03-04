@@ -3,9 +3,11 @@ package com.example.plague.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -16,8 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.plague.GameViewModel
 import com.example.plague.R
@@ -106,39 +110,117 @@ fun PauseScreen(navController: NavController, viewModel: GameViewModel) {
         }
 
         if (showExitDialog) {
-            AlertDialog(
-                onDismissRequest = { showExitDialog = false },
-                title = { Text("Выход") },
-                text = { Text("Вы уверены, что хотите выйти в главное меню? Прогресс будет потерян.") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showExitDialog = false
-                        viewModel.resetGame()
-                        navController.navigate("home") { popUpTo("home") { inclusive = true } }
-                    }) { Text("Да") }
+            PlagueConfirmDialog(
+                title = "Выйти в главное меню?",
+                description = "Текущая игра будет сохранена",
+                confirmText = "Выйти",
+                onConfirm = {
+                    showExitDialog = false
+                    navController.navigate("home") { popUpTo("home") { inclusive = true } }
                 },
-                dismissButton = {
-                    TextButton(onClick = { showExitDialog = false }) { Text("Отмена") }
-                }
+                onDismiss = { showExitDialog = false }
             )
         }
 
         if (showResetDialog) {
-            AlertDialog(
-                onDismissRequest = { showResetDialog = false },
-                title = { Text("Сброс") },
-                text = { Text("Вы уверены, что хотите начать заново?") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showResetDialog = false
-                        viewModel.resetGame()
-                        navController.navigate("home") { popUpTo("home") { inclusive = true } }
-                    }) { Text("Да") }
+            PlagueConfirmDialog(
+                title = "Начать новую игру?",
+                description = "Текущая игра не сохранится",
+                confirmText = "Сброс",
+                onConfirm = {
+                    showResetDialog = false
+                    viewModel.resetGame()
+                    navController.navigate("home") { popUpTo("home") { inclusive = true } }
                 },
-                dismissButton = {
-                    TextButton(onClick = { showResetDialog = false }) { Text("Отмена") }
-                }
+                onDismiss = { showResetDialog = false }
             )
+        }
+    }
+}
+
+@Composable
+fun PlagueConfirmDialog(
+    title: String,
+    description: String,
+    confirmText: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+            shape = RoundedCornerShape(8.dp),
+            color = Color(0xFF1A1A1A).copy(alpha = 0.95f)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Normal,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Text(
+                    text = description,
+                    color = Color.Gray,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Surface(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(2.dp),
+                        color = Color(0xFFA5A5A5)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "Отмена",
+                                color = Color(0xFF2196F3),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Surface(
+                        onClick = onConfirm,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(2.dp),
+                        color = Color(0xFF7B2424)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = confirmText,
+                                color = Color.Black,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
