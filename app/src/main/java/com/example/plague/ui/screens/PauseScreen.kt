@@ -1,8 +1,11 @@
 package com.example.plague.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -10,11 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.plague.GameViewModel
+import com.example.plague.R
 import com.example.plague.ui.theme.*
 
 @Composable
@@ -30,9 +36,15 @@ fun PauseScreen(navController: NavController, viewModel: GameViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Background)
+            .background(Color(0xFF0F171E))
     ) {
-        WorldMapBackground()
+        Image(
+            painter = painterResource(id = R.drawable.game_bg),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alpha = 0.4f
+        )
 
         Column(
             modifier = Modifier
@@ -41,89 +53,106 @@ fun PauseScreen(navController: NavController, viewModel: GameViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text("МЕНЮ", color = GreenAccent, fontSize = 40.sp, fontWeight = FontWeight.ExtraBold)
+            Text(
+                text = "МЕНЮ",
+                color = Color(0xFF39FF14),
+                fontSize = 80.sp,
+                fontWeight = FontWeight.Normal
+            )
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                PauseButton(
-                    icon = {
-                        Icon(Icons.Default.PlayArrow, "Продолжить", tint = Background, modifier = Modifier.size(32.dp))
-                    },
-                    label = "Продолжить"
-                ) {
+                LargePauseButton(onClick = {
                     viewModel.resumeGame()
                     navController.navigate("game") { popUpTo("game") { inclusive = false } }
+                }) {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = "Продолжить",
+                        tint = Color(0xFF4469C1),
+                        modifier = Modifier.size(60.dp)
+                    )
                 }
-                PauseButton(
-                    icon = {
-                        Icon(Icons.Default.BarChart, "Статистика", tint = Background, modifier = Modifier.size(32.dp))
-                    },
-                    label = "Статистика"
-                ) {
-                    navController.navigate("currentStats")
+
+                LargePauseButton(onClick = { navController.navigate("currentStats") }) {
+                    Icon(
+                        Icons.Default.BarChart,
+                        contentDescription = "Статистика",
+                        tint = Color(0xFF4469C1),
+                        modifier = Modifier.size(60.dp)
+                    )
                 }
-                PauseButton(
-                    icon = {
-                        Icon(Icons.Default.Refresh, "Сброс", tint = Background, modifier = Modifier.size(32.dp))
-                    },
-                    label = "Сбросить игру"
-                ) {
-                    showResetDialog = true
+
+                LargePauseButton(onClick = { showResetDialog = true }) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = "Сброс",
+                        tint = Color(0xFF4469C1),
+                        modifier = Modifier.size(60.dp)
+                    )
                 }
-                PauseButton(
-                    icon = {
-                        Icon(Icons.Default.Home, "Домой", tint = Background, modifier = Modifier.size(32.dp))
-                    },
-                    label = "Главное меню"
-                ) {
-                    showExitDialog = true
-                }
-                PauseButton(
-                    icon = {
-                        Icon(Icons.Default.Info, "О приложении", tint = Background, modifier = Modifier.size(32.dp))
-                    },
-                    label = "Информация"
-                ) {
-                    navController.navigate("about")
+
+                LargePauseButton(onClick = { showExitDialog = true }) {
+                    Icon(
+                        Icons.Default.Home,
+                        contentDescription = "Домой",
+                        tint = Color(0xFF4469C1),
+                        modifier = Modifier.size(60.dp)
+                    )
                 }
             }
         }
 
         if (showExitDialog) {
-            ExitToMenuDialog(
-                onExit = {
-                    showExitDialog = false
-                    viewModel.resetGame()
-                    navController.navigate("home") { popUpTo("home") { inclusive = true } }
+            AlertDialog(
+                onDismissRequest = { showExitDialog = false },
+                title = { Text("Выход") },
+                text = { Text("Вы уверены, что хотите выйти в главное меню? Прогресс будет потерян.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showExitDialog = false
+                        viewModel.resetGame()
+                        navController.navigate("home") { popUpTo("home") { inclusive = true } }
+                    }) { Text("Да") }
                 },
-                onCancel = { showExitDialog = false }
+                dismissButton = {
+                    TextButton(onClick = { showExitDialog = false }) { Text("Отмена") }
+                }
             )
         }
 
         if (showResetDialog) {
-            NewGameConfirmDialog(
-                onConfirm = {
-                    showResetDialog = false
-                    viewModel.resetGame()
-                    navController.navigate("home") { popUpTo("home") { inclusive = true } }
+            AlertDialog(
+                onDismissRequest = { showResetDialog = false },
+                title = { Text("Сброс") },
+                text = { Text("Вы уверены, что хотите начать заново?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showResetDialog = false
+                        viewModel.resetGame()
+                        navController.navigate("home") { popUpTo("home") { inclusive = true } }
+                    }) { Text("Да") }
                 },
-                onCancel = { showResetDialog = false }
+                dismissButton = {
+                    TextButton(onClick = { showResetDialog = false }) { Text("Отмена") }
+                }
             )
         }
     }
 }
 
 @Composable
-fun PauseButton(icon: @Composable () -> Unit, label: String, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+fun LargePauseButton(onClick: () -> Unit, content: @Composable BoxScope.() -> Unit) {
+    Surface(
+        modifier = Modifier
+            .size(100.dp)
+            .clickable(onClick = onClick),
+        shape = CircleShape,
+        color = Color.White,
+        shadowElevation = 8.dp
     ) {
-        CircleIconButton(onClick = onClick, size = 64.dp) {
-            icon()
-        }
-        Text(label, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Box(contentAlignment = Alignment.Center, content = content)
     }
 }

@@ -1,7 +1,9 @@
 package com.example.plague.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -16,12 +18,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.plague.GameViewModel
+import com.example.plague.R
 import com.example.plague.ui.theme.Background
 import com.example.plague.ui.theme.GreenAccent
 
@@ -34,9 +39,15 @@ fun HomeScreen(navController: NavController, viewModel: GameViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Background)
+            .background(Color(0xFF0F171E))
     ) {
-        BiohazardBackground()
+        Image(
+            painter = painterResource(id = R.drawable.game_bg),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alpha = 0.4f
+        )
 
         Column(
             modifier = Modifier
@@ -59,8 +70,8 @@ fun HomeScreen(navController: NavController, viewModel: GameViewModel) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "ЧУМААААА",
-                    color = GreenAccent,
-                    fontSize = 48.sp,
+                    color = Color(0xFF39FF14),
+                    fontSize = 54.sp,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center
                 )
@@ -76,22 +87,28 @@ fun HomeScreen(navController: NavController, viewModel: GameViewModel) {
             }
 
             Box(contentAlignment = Alignment.Center) {
-                CircleIconButton(
-                    onClick = {
-                        if (state.gameStarted) {
-                            navController.navigate("resume")
-                        } else {
-                            navController.navigate("newGame")
-                        }
-                    },
-                    size = 88.dp
+                Surface(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clickable {
+                            if (state.gameStarted) {
+                                navController.navigate("game")
+                            } else {
+                                navController.navigate("newGame")
+                            }
+                        },
+                    shape = CircleShape,
+                    color = Color.White,
+                    shadowElevation = 8.dp
                 ) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = "Играть",
-                        tint = Background,
-                        modifier = Modifier.size(48.dp)
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "Играть",
+                            modifier = Modifier.size(60.dp),
+                            tint = Color(0xFF5D7B9C)
+                        )
+                    }
                 }
             }
 

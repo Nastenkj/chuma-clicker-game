@@ -130,7 +130,6 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel) {
                 )
             }
 
-            // Bottom Buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
